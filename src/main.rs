@@ -11,7 +11,5 @@ fn main() {
             Ok(line) => line,
             Err(error) => panic!()
         };
-        
     }
 }
-
