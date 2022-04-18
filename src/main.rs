@@ -5,7 +5,9 @@ use md5;
 
 
 fn main() {
-    let file = open("/Users/yoavnir/Documents/vs code/rust/old/solving_challenges/advent_of_code/text.txt");
+    let file = open("/home/yoavn/Documents/rust/cool stuff/advent_of_code/text.txt");
+
+    let mut arr = vec![[0;1000];1000];
 
     let mut i = 0;
 
@@ -19,12 +21,4 @@ fn main() {
     }
 
     println!("{i}");
-    /*
-    for line in file_to_iter(file).lines() {
-        let line = match line {
-            Ok(line) => line,
-            Err(error) => panic!()
-        };
-    }
-    */
 }
