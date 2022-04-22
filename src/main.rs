@@ -5,20 +5,21 @@ use md5;
 
 
 fn main() {
-    let file = open("/home/yoavn/Documents/rust/cool stuff/advent_of_code/text.txt");
+    let file = open("/Users/yoavnir/Documents/vs code/rust/old/solving_challenges/advent_of_code/text.txt");
 
-    let mut arr = vec![[0;1000];1000];
+    let lines = file_to_iter(file);
 
-    let mut i = 0;
+    let x = 0;
+    let y = 1;
+    let and = x&y;
+    println!("{and}");
 
-    loop {
-        let digest = md5::compute(format!("bgvyzdsv{i}"));
-        //println!("{:?}",&digest[0..5]);
-        if format!("{:x}",&digest)[0..5] == *"00000" {
-            break
-        }
-        i+=1;
+    for line in lines.lines() {
+        let line = match line {
+            Ok(line) => line,
+            Err(err) => panic!("{}",err)
+        };
+
+
     }
-
-    println!("{i}");
 }
