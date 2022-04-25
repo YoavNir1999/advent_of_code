@@ -5,33 +5,55 @@ use std::io::prelude::*;
 fn main() {
     let file = open("/Users/yoavnir/Documents/vs code/rust/old/solving_challenges/advent_of_code/text.txt");
     let lines = file_to_iter(file);
+    let mut total = 0;
     
     for line in lines.lines() {
-        let mut line = match line {
+        let line = match line {
             Ok(line) => line,
             Err(err) => panic!("{}",err)
         };
-        for _i in 0..50 {
-            line = line_to_new_line(line)
-        }
-        println!("{}",line.len())
-
+        let long = line.len();
+        let short = encode(&line).len();
+        total += short-long;
     }
+    println!("{total}")
 }
 
-fn line_to_new_line(line:String) -> String  {
-    let mut last = line.chars().next().unwrap();
-    let mut new_line = String::new();
-    let mut count = 0;
-    for char in line.chars() {
-        if char == last {
-            count+=1
-        } else {
-            new_line += &format!("{count}{last}");
-            last = char;
-            count = 1;
+fn encode(input: &String) -> String {
+    let input = input.as_bytes();
+    let mut r = String::new();
+    r.push('"');
+    for c in input.iter() {
+        match *c {
+            b'"' => r.push_str("\\\""),
+            b'\\' => r.push_str("\\\\"),
+            _ => r.push(*c as char),
         }
     }
-    new_line += &format!("{count}{last}");
-    return new_line
+    r.push('"');
+    return r;
+}
+
+fn decode(input: &String) -> String {
+    let input = input.as_bytes();
+    let mut r = String::new();
+    let mut i = 1;
+    while i < input.len() - 1 {
+        if input[i] == b'\\' {
+            if input[i + 1] == b'\\' {
+                r.push('\\');
+                i += 2;
+            } else if input[i + 1] == b'"' {
+                r.push('"');
+                i += 2;
+            } else if input[i + 1] == b'x' {
+                r.push('?'); // I'm being lazy!
+                i += 4;
+            }
+        } else {
+            r.push(input[i] as char);
+            i += 1;
+        }
+    }
+    return r;
 }
