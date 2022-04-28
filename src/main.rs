@@ -22,6 +22,8 @@ fn main() {
 
 fn parse_json(line:String) -> Vec<i64> {
     let re = Regex::new(r"-?\d+").unwrap();
+    let red_re = Regex::new(r#"[{][a-z,:""\-\[\]\d]*"red"[a-z,:""\d\[\]\-\{]*[\}]?[}]"#).unwrap();
+    let line = red_re.replace_all(&line, "");
     let caps : Vec<i64> = re.find_iter(&line).filter_map(|x| x.as_str().parse::<i64>().ok()).collect();
     
     return caps
