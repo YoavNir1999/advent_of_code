@@ -6,64 +6,82 @@ use std::io::prelude::*;
 fn main() {
     let file = open("/Users/yoavnir/Documents/vs code/rust/old/solving_challenges/advent_of_code/text.txt");
     let lines = file_to_iter(file);
-    let mut deers:Vec<Deer> = Vec::new();
+    let mut ings:Vec<Ing> = Vec::new();
     for line in lines.lines() {
         let line = match line {
             Ok(line) => line,
             Err(err) => panic!("{}",err)
         };
 
-        parse_line(line,&mut deers)
-    }
-    for _second in 0..2503 {
-        for deer in &mut deers {
-            deer.counter+=1;
-            if deer.counter <= deer.duration {
-                deer.location+=deer.speed
-            } else if deer.counter==deer.duration+deer.rest {
-                deer.counter=0
-            }
-        }
-        let mut max_dist = 0;
-        for deer in &deers {
-            if deer.location>max_dist {
-                max_dist=deer.location
-            }
-        }
-        for deer in &mut deers {
-            if deer.location==max_dist {
-                deer.score+=1
-            }
-        }
-    }
-    for deer in &deers {
-        println!("{}",deer.score)
+        parse_line(line,&mut ings)
     }
 
+    let mut biggest = 0;
+
+    for i1 in 0..101 {
+        for i2 in 0..101-i1 {
+            for i3 in 0..101-i1-i2 {
+                let i4=100-i1-i2-i3;
+                let calc = calc_comb([i1,i2,i3,i4], &ings);
+                match calc {
+                    Some(num) => if num > biggest {biggest=num},
+                    None => ()
+                }
+            }
+        }
+    }
+
+    println!("{biggest}")
+}
+
+fn calc_comb(comb:[i64;4],ings:&Vec<Ing>) -> Option<i64> {
+    let mut c = 0;
+    let mut d = 0;
+    let mut f = 0;
+    let mut t = 0;
+    let mut cals = 0;
+
+    for idx in 0..4 {
+        c += ings[idx].capacity*comb[idx];
+        d += ings[idx].durab*comb[idx];
+        f += ings[idx].flav*comb[idx];
+        t += ings[idx].texture*comb[idx];
+        cals += ings[idx].cals*comb[idx];
+    }
+    if c < 0 {c=0};
+    if d < 0 {d=0};
+    if f < 0 {f=0};
+    if t < 0 {t=0};
+
+
+    if cals == 500 {
+        return Some(c*d*f*t)
+    } else {
+        return None
+    }
+    
 }
 
 #[derive(Debug,Clone)]
-struct Deer {
+struct Ing {
     name : String,
-    speed : u32,
-    duration : u32,
-    rest: u32,
-    location : u32,
-    counter : u32,
-    score : u32
+    capacity : i64,
+    durab : i64,
+    flav : i64,
+    texture : i64,
+    cals : i64
 }
 
-fn parse_line(line:String,arr:&mut Vec<Deer>) {
+fn parse_line(line:String,arr:&mut Vec<Ing>) {
     let line : Vec<String> = line.split(" ").map(|x| x.to_owned()).collect();
     arr.push(
-        Deer {
+        Ing {
             name : line[0].clone(),
-            speed : line[3].parse::<u32>().unwrap(),
-            duration : line[6].parse::<u32>().unwrap(),
-            location : 0,
-            rest : line[13].parse::<u32>().unwrap(),
-            counter : 0,
-            score : 0
+            capacity : line[2].parse().unwrap(),
+            durab :  line[4].parse().unwrap(),
+            flav : line[6].parse().unwrap(),
+            texture :  line[8].parse().unwrap(),
+            cals :  line[10].parse().unwrap(),
         }
     )
 }
