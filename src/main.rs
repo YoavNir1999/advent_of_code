@@ -15,19 +15,30 @@ fn main() {
 
         parse_line(line,&mut deers)
     }
-    let mut biggest = 0;
-    for mut deer in deers {
-        let mut remainder = 2503 % deer.cycle;
-        if remainder > deer.duration {
-            remainder = deer.duration;
+    for _second in 0..2503 {
+        for deer in &mut deers {
+            deer.counter+=1;
+            if deer.counter <= deer.duration {
+                deer.location+=deer.speed
+            } else if deer.counter==deer.duration+deer.rest {
+                deer.counter=0
+            }
         }
-        deer.location = (2503.0/deer.cycle as f64).floor() as u32 * deer.speed * deer.duration + remainder * deer.speed;
-        if deer.location>biggest {
-            biggest=deer.location
+        let mut max_dist = 0;
+        for deer in &deers {
+            if deer.location>max_dist {
+                max_dist=deer.location
+            }
         }
-        println!("{:?}",deer);
+        for deer in &mut deers {
+            if deer.location==max_dist {
+                deer.score+=1
+            }
+        }
     }
-    println!("{:?}",biggest)
+    for deer in &deers {
+        println!("{}",deer.score)
+    }
 
 }
 
@@ -36,8 +47,10 @@ struct Deer {
     name : String,
     speed : u32,
     duration : u32,
+    rest: u32,
     location : u32,
-    cycle : u32
+    counter : u32,
+    score : u32
 }
 
 fn parse_line(line:String,arr:&mut Vec<Deer>) {
@@ -48,7 +61,9 @@ fn parse_line(line:String,arr:&mut Vec<Deer>) {
             speed : line[3].parse::<u32>().unwrap(),
             duration : line[6].parse::<u32>().unwrap(),
             location : 0,
-            cycle : line[6].parse::<u32>().unwrap()+line[13].parse::<u32>().unwrap()
+            rest : line[13].parse::<u32>().unwrap(),
+            counter : 0,
+            score : 0
         }
     )
 }
