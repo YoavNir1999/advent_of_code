@@ -23,9 +23,8 @@ fn main() {
             for i3 in 0..101-i1-i2 {
                 let i4=100-i1-i2-i3;
                 let calc = calc_comb([i1,i2,i3,i4], &ings);
-                match calc {
-                    Some(num) => if num > biggest {biggest=num},
-                    None => ()
+                if calc>biggest {
+                    biggest=calc
                 }
             }
         }
@@ -34,7 +33,7 @@ fn main() {
     println!("{biggest}")
 }
 
-fn calc_comb(comb:[i64;4],ings:&Vec<Ing>) -> Option<i64> {
+fn calc_comb(comb:[i64;4],ings:&Vec<Ing>) -> i64 {
     let mut c = 0;
     let mut d = 0;
     let mut f = 0;
@@ -54,11 +53,8 @@ fn calc_comb(comb:[i64;4],ings:&Vec<Ing>) -> Option<i64> {
     if t < 0 {t=0};
 
 
-    if cals == 500 {
-        return Some(c*d*f*t)
-    } else {
-        return None
-    }
+    return c*d*f*t
+
     
 }
 
