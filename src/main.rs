@@ -29,7 +29,7 @@ fn main() {
 }
 
 fn permutate(arr:&Vec<SeatingInfo>,answers:&mut Vec<i32>,new:&mut Vec<SeatingInfo>) {
-    if new.len()==8 {
+    if new.len()==arr.len() {
         answers.push(new.compute());
     } else {
         for sit in arr {
@@ -62,7 +62,7 @@ fn parse_line(line:String,seaters:&mut Vec<SeatingInfo>) {
             person1 : line[0].clone(),
             person2 : vec!(line[10].clone()),
             number : vec!(num)
-    })} else if seaters.last().unwrap().person2.len() == 7 {
+    })} else if seaters.last().unwrap().person2.len() == 8 {
         seaters.push(SeatingInfo {
             person1 : line[0].clone(),
             person2 : vec!(line[10].clone()),
@@ -103,7 +103,7 @@ impl Add for &SeatingInfo {
         let name2 = &other.person1;
         let mut num1 : i32 = 0;
         let mut num2 : i32 = 0;
-        for idx in 0..7 {
+        for idx in 0..self.person2.len() {
             if &self.person2[idx]==name2 {
                 num1 = self.number[idx]
             } if &other.person2[idx]==name1 {
