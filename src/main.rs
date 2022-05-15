@@ -22,13 +22,27 @@ fn main() {
 
     solve_recursive(&mut solutions, &boxes,&mut solution,0);
 
+
+
     for sol in &mut solutions {
-        sol.sort()
+        sol.sort();
     }
 
     solutions.dedup();
 
-    println!("{:?}",solutions.len());
+    solutions.sort_by_key(|x| x.len());
+
+    let mut solutions_len = Vec::new();
+
+    for sol in &mut solutions {
+        solutions_len.push(sol.len())
+    }
+
+    let shortest = solutions_len[0];
+
+    solutions_len = solutions_len.iter().filter(|x| *x==&shortest).map(|x| *x).collect();
+
+    println!("{:?}",&solutions_len.len());
 }
 
 fn parse_line(line:String,boxes:&mut Vec<u16>) {
