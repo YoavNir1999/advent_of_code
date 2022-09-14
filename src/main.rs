@@ -22,8 +22,6 @@ fn main() {
 
     solve_recursive(&mut solutions, &boxes,&mut solution,0);
 
-
-
     for sol in &mut solutions {
         sol.sort();
     }
