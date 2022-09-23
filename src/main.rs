@@ -18,14 +18,13 @@ fn main() {
     */
     
     let mut player = Player::new();
-    let mut boss = Boss {
+    let boss = Boss {
         health : 103,
         damage : 9,
         armor : 2
     };
 
     let weapons = [
-        [0,0],
         [8,4],
         [10,5],
         [25,6],
@@ -53,7 +52,7 @@ fn main() {
         [80,0,3]
     ];
 
-    let mut cheapest = 200;
+    let mut expensive = 0;
 
     for weapon in weapons {
         for armor in armors {
@@ -61,10 +60,12 @@ fn main() {
                 for ring2 in 0..8 {
                     if ring1 != ring2 {
                         let cost = weapon[0]+armor[0]+rings[ring1][0]+rings[ring2][0];
+                        player.health = 100;
                         player.armor = armor[1]+rings[ring1][2]+rings[ring2][2];
                         player.damage = weapon[1]+rings[ring1][1]+rings[ring2][1];
-                        if game(&player, &boss) && cost < cheapest {
-                            cheapest = cost
+                        if game(&player, &boss) && cost > expensive {
+                            //println!("{cost}");
+                            expensive = cost
                         }
                     }
                 }
@@ -72,50 +73,54 @@ fn main() {
         }
     }
 
-    println!("{cheapest}")
+    println!("{expensive}")
 }
 
 fn game(player : &Player, boss : &Boss) -> bool {
     let mut player = player.clone();
     let mut boss = boss.clone();
 
+    //println!("{:?}",player);
+
+    let player_attack = player.damage - boss.armor;
+    let boss_attack = boss.damage - player.armor;
+
     loop {
         // player attack
-        if player.damage-boss.armor >= 1 {
-            boss.health -= player.damage-boss.armor;
+        if player_attack >= 1 {
+            boss.health -= player_attack;
         } else {
             boss.health -= 1;
         }
         if boss.health <= 0 {
-            return true
+            return false
         }
         // boss attack
-        if boss.damage-player.armor >= 1 {
-            player.health -= boss.damage-player.armor;
+        if boss_attack >= 1 {
+            player.health -= boss_attack;
         } else {
             player.health -= 1;
         }
         if player.health <= 0 {
-            return false
+            return true
         }
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone,Debug)]
 struct Player {
     health : i32,
     armor : i32,
     damage : i32,
-    coins : i32,
 }
 
 impl Player {
     fn new() -> Player {
-        return Player { health: 100, armor: 0, damage: 0, coins: 0 }
+        return Player { health: 100, armor: 0, damage: 0 }
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone,Debug)]
 struct Boss {
     health : i32,
     armor : i32,
