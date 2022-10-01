@@ -4,131 +4,154 @@ use std::io::prelude::*;
 //use std::ops::Add;
 
 fn main() {
-    /*
     let file = open("/Users/yoavnir/Documents/vs code/rust/old/solving_challenges/advent_of_code/text.txt");
     let lines = file_to_iter(file);
+
+    let mut instructions : Vec<Instruction> = Vec::new();
 
     for line in lines.lines() {
         let line = match line {
             Ok(line) => line,
             Err(err) => panic!("{}",err)
         };
-
+        instructions.push(parse_line(line))
+    }
+    /*
+    for ins in &instructions {
+        println!("{:?}",ins)
     }
     */
     
-    let mut player = Player::new();
-    let boss = Boss {
-        health : 103,
-        damage : 9,
-        armor : 2
-    };
 
-    let weapons = [
-        [8,4],
-        [10,5],
-        [25,6],
-        [40,7],
-        [74,8]
-    ];
+    let mut a : i128 = 0;
+    let mut b : i128 = 0;
 
-    let armors = [
-        [0,0],
-        [13,1],
-        [31,2],
-        [53,3],
-        [75,4],
-        [102,5]
-    ];
+    let mut idx : i128 = 0;
 
-    let rings: [[i32;3];8] = [
-        [0,0,0],
-        [0,0,0],
-        [25,1,0],
-        [50,2,0],
-        [100,3,0],
-        [20,0,1],
-        [40,0,2],
-        [80,0,3]
-    ];
+    while idx < instructions.len() as i128{
+        match &instructions[idx as usize] {
+            Instruction::hlf(reg) => {
+                match reg {
+                    Register::a => a/=2,
+                    Register::b => b/=2
+                };
+                idx += 1;
+            },
 
-    let mut expensive = 0;
+            Instruction::inc(reg) => {
+                match reg {
+                    Register::a => a+=1,
+                    Register::b => b+=1
+                };
+                idx += 1;
+            },
 
-    for weapon in weapons {
-        for armor in armors {
-            for ring1 in 0..8 {
-                for ring2 in 0..8 {
-                    if ring1 != ring2 {
-                        let cost = weapon[0]+armor[0]+rings[ring1][0]+rings[ring2][0];
-                        player.health = 100;
-                        player.armor = armor[1]+rings[ring1][2]+rings[ring2][2];
-                        player.damage = weapon[1]+rings[ring1][1]+rings[ring2][1];
-                        if game(&player, &boss) && cost > expensive {
-                            //println!("{cost}");
-                            expensive = cost
+            Instruction::jie(reg,jump ) => {
+                match reg {
+                    Register::a => {
+                        if a%2==0 {
+                            idx += jump
+                        } else {
+                            idx += 1
                         }
-                    }
+                    },
+                    Register::b => {
+                        if b%2==0 {
+                            idx += jump
+                        } else {
+                            idx += 1
+                        }
+                    },
                 }
+            },
+
+            Instruction::jio(reg, jump) => {
+                match reg {
+                    Register::a => {
+                        if a==1 {
+                            idx += jump
+                        } else {
+                            idx += 1
+                        }
+                    },
+                    Register::b => {
+                        if b==1 {
+                            idx += jump
+                        } else {
+                            idx += 1
+                        }
+                    },
+                }
+            },
+
+            Instruction::jmp(jump) => {
+                idx += jump
+            },
+
+            Instruction::tpl(reg) => {
+                match reg {
+                    Register::a => a*=3,
+                    Register::b => b*=3
+                };
+                idx += 1;
             }
         }
     }
 
-    println!("{expensive}")
+    println!("{b}");
 }
 
-fn game(player : &Player, boss : &Boss) -> bool {
-    let mut player = player.clone();
-    let mut boss = boss.clone();
+#[derive(Debug)]
+enum Register {
+    a,
+    b
+}
 
-    //println!("{:?}",player);
+#[derive(Debug)]
+enum Instruction {
+    hlf(Register),
+    tpl(Register),
+    inc(Register),
+    jmp(i128),
+    jie(Register,i128),
+    jio(Register,i128)
+}
 
-    let player_attack = player.damage - boss.armor;
-    let boss_attack = boss.damage - player.armor;
-
-    loop {
-        // player attack
-        if player_attack >= 1 {
-            boss.health -= player_attack;
+fn parse_line(line:String) -> Instruction {
+    let line : Vec<&str> = line.split(" ").collect();
+    if line[0]=="hlf" {
+        if line[1] == "a" {
+            return Instruction::hlf(Register::a)
         } else {
-            boss.health -= 1;
+            return Instruction::hlf(Register::b)
         }
-        if boss.health <= 0 {
-            return false
-        }
-        // boss attack
-        if boss_attack >= 1 {
-            player.health -= boss_attack;
+    } else if line[0]=="tpl" {
+        if line[1] == "a" {
+            return Instruction::tpl(Register::a)
         } else {
-            player.health -= 1;
+            return Instruction::tpl(Register::b)
         }
-        if player.health <= 0 {
-            return true
+    } else if line[0]=="inc" {
+        if line[1] == "a" {
+            return Instruction::inc(Register::a)
+        } else {
+            return Instruction::inc(Register::b)
         }
+    } else if line[0]=="jmp" {
+        return Instruction::jmp(line[1].parse().unwrap())
+    } else if line[0]=="jio" {
+        if line[1] == "a" {
+            return Instruction::jio(Register::a,line[2].parse().unwrap())
+        } else {
+            return Instruction::jio(Register::b,line[2].parse().unwrap())
+        }
+    } else if line[0]=="jie" {
+        if line[1] == "a" {
+            return Instruction::jie(Register::a,line[2].parse().unwrap())
+        } else {
+            return Instruction::jie(Register::b,line[2].parse().unwrap())
+        }
+    } else {
+        panic!("parse error")
     }
 }
-
-#[derive(Clone,Debug)]
-struct Player {
-    health : i32,
-    armor : i32,
-    damage : i32,
-}
-
-impl Player {
-    fn new() -> Player {
-        return Player { health: 100, armor: 0, damage: 0 }
-    }
-}
-
-#[derive(Clone,Debug)]
-struct Boss {
-    health : i32,
-    armor : i32,
-    damage : i32
-}
-
-/*
-fn parse_line(line:String) {
-    //let line : Vec<String> = line.split(" ").map(|x| x.to_owned()).collect();
-}
-*/

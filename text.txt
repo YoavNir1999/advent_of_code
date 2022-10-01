@@ -1,20 +1,46 @@
-43
-3
-4
-10
-21
-44
-4
-6
-47
-41
-34
-17
-17
-44
-36
-31
-46
-9
-27
-38
+jio a 16
+inc a
+inc a
+tpl a
+tpl a
+tpl a
+inc a
+inc a
+tpl a
+inc a
+inc a
+tpl a
+tpl a
+tpl a
+inc a
+jmp 23
+tpl a
+inc a
+inc a
+tpl a
+inc a
+inc a
+tpl a
+tpl a
+inc a
+inc a
+tpl a
+inc a
+tpl a
+inc a
+tpl a
+inc a
+inc a
+tpl a
+inc a
+tpl a
+tpl a
+inc a
+jio a 8
+inc b
+jie a 4
+tpl a
+inc a
+jmp 2
+hlf a
+jmp -7
