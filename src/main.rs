@@ -23,7 +23,7 @@ fn main() {
     */
     
 
-    let mut a : i128 = 0;
+    let mut a : i128 = 1;
     let mut b : i128 = 0;
 
     let mut idx : i128 = 0;
