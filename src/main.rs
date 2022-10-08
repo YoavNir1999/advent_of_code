@@ -19,7 +19,7 @@ fn main() {
         packages.push(parse_line(line))
     }
 
-    let group_weight : u64 = packages.iter().sum::<u64>()/3;
+    let group_weight : u64 = packages.iter().sum::<u64>()/4;
     let mut main : Vec<u64> = Vec::new();
 
     recursive_add(&mut packages, 0,&mut best,group_weight,&mut main);
