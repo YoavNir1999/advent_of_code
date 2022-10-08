@@ -1,157 +1,152 @@
 mod parse_text;
 use parse_text::*;
-use std::io::prelude::*;
+use std::{io::prelude::*};
 //use std::ops::Add;
 
 fn main() {
     let file = open("/Users/yoavnir/Documents/vs code/rust/old/solving_challenges/advent_of_code/text.txt");
     let lines = file_to_iter(file);
 
-    let mut instructions : Vec<Instruction> = Vec::new();
+    let mut packages : Vec<i32> = Vec::new();
+    let mut configs : Vec<Arrangement> = Vec::new();
+
+    let mut best = (100,1000000000);
+
+    let mut arrangement = Arrangement {
+        main : Vec::new(),
+        cmp1 : Vec::new(),
+        cmp2 : Vec::new(),
+        last : 0
+    };
 
     for line in lines.lines() {
         let line = match line {
             Ok(line) => line,
             Err(err) => panic!("{}",err)
         };
-        instructions.push(parse_line(line))
+        packages.push(parse_line(line))
     }
+
+    recursive_add(&mut packages, &mut arrangement, &mut configs,0,&mut best);
+
     /*
-    for ins in &instructions {
-        println!("{:?}",ins)
-    }
+    println!("{:?}",configs);
+
+    let res = configs.best_config();
+    println!("{res}")
     */
-    
 
-    let mut a : i128 = 1;
-    let mut b : i128 = 0;
 
-    let mut idx : i128 = 0;
+}
 
-    while idx < instructions.len() as i128{
-        match &instructions[idx as usize] {
-            Instruction::hlf(reg) => {
-                match reg {
-                    Register::a => a/=2,
-                    Register::b => b/=2
-                };
-                idx += 1;
-            },
-
-            Instruction::inc(reg) => {
-                match reg {
-                    Register::a => a+=1,
-                    Register::b => b+=1
-                };
-                idx += 1;
-            },
-
-            Instruction::jie(reg,jump ) => {
-                match reg {
-                    Register::a => {
-                        if a%2==0 {
-                            idx += jump
-                        } else {
-                            idx += 1
-                        }
-                    },
-                    Register::b => {
-                        if b%2==0 {
-                            idx += jump
-                        } else {
-                            idx += 1
-                        }
-                    },
-                }
-            },
-
-            Instruction::jio(reg, jump) => {
-                match reg {
-                    Register::a => {
-                        if a==1 {
-                            idx += jump
-                        } else {
-                            idx += 1
-                        }
-                    },
-                    Register::b => {
-                        if b==1 {
-                            idx += jump
-                        } else {
-                            idx += 1
-                        }
-                    },
-                }
-            },
-
-            Instruction::jmp(jump) => {
-                idx += jump
-            },
-
-            Instruction::tpl(reg) => {
-                match reg {
-                    Register::a => a*=3,
-                    Register::b => b*=3
-                };
-                idx += 1;
+fn recursive_add(packages :&Vec<i32>, arrangement : &mut Arrangement, configs : &mut Vec<Arrangement>,idx : usize,best : &mut (usize,i32)) {
+    if packages.len() == idx {
+        if arrangement.is_balanced() {
+            /*
+            configs.push(arrangement.clone());
+            //println!("{:?}",arrangement);
+            //arrangement.pop();
+            */
+            
+            if arrangement.main.len() < best.0 {
+                *best = (arrangement.main.len(),arrangement.compute_qe());
+                println!("{:?}",best)
+            } else if arrangement.main.len() == best.0 && arrangement.compute_qe() < best.1 {
+                *best = (arrangement.main.len(),arrangement.compute_qe());
+                println!("{:?}",best)
             }
         }
     }
+    else {
+        let current = packages[idx];
 
-    println!("{b}");
+        for i in 0..3 {
+            if i == 2 {
+                arrangement.main.push(current);
+                arrangement.last = 0;
+                //println!("{:?}",arrangement);
+                let idx = idx + 1;
+                recursive_add(packages, arrangement, configs,idx,best);
+                arrangement.main.pop();
+
+            } else if i == 1 {
+                arrangement.cmp1.push(current);
+                arrangement.last = 1;
+                //println!("{:?}",arrangement);
+                let idx = idx + 1;
+                recursive_add(packages, arrangement, configs,idx,best);
+                arrangement.cmp1.pop();
+
+            } else if i == 0 {
+                arrangement.cmp2.push(current);
+                arrangement.last = 2;
+                //println!("{:?}",arrangement);
+                let idx = idx + 1;
+                recursive_add(packages, arrangement, configs,idx,best);
+                arrangement.cmp2.pop();
+            }
+        }
+        
+    }
 }
 
-#[derive(Debug)]
-enum Register {
-    a,
-    b
+#[derive(Clone,Debug)]
+struct Arrangement {
+    main : Vec<i32>,
+    cmp1 : Vec<i32>,
+    cmp2 : Vec<i32>,
+    last : i32
 }
 
-#[derive(Debug)]
-enum Instruction {
-    hlf(Register),
-    tpl(Register),
-    inc(Register),
-    jmp(i128),
-    jie(Register,i128),
-    jio(Register,i128)
+impl Arrangement {
+    fn pop(&mut self) -> i32 {
+        if self.last == 0 {
+            self.main.pop().unwrap()
+        } else if self.last == 1 {
+            self.cmp1.pop().unwrap()
+        } else {
+            self.cmp2.pop().unwrap()
+        }
+    }
 }
 
-fn parse_line(line:String) -> Instruction {
-    let line : Vec<&str> = line.split(" ").collect();
-    if line[0]=="hlf" {
-        if line[1] == "a" {
-            return Instruction::hlf(Register::a)
-        } else {
-            return Instruction::hlf(Register::b)
+fn parse_line(line:String) -> i32 {
+    return line.parse().unwrap()
+}
+
+impl Arrangement {
+    fn compute_qe(&self) -> i32 {
+        let mut res = 1;
+        for package in &self.main {
+            res *= package
         }
-    } else if line[0]=="tpl" {
-        if line[1] == "a" {
-            return Instruction::tpl(Register::a)
+        res.abs()
+    }
+    
+    fn is_balanced(&self) -> bool {
+        if self.main.iter().sum::<i32>() == self.cmp1.iter().sum::<i32>()
+        && self.cmp1.iter().sum::<i32>() == self.cmp2.iter().sum::<i32>() {
+            return true
         } else {
-            return Instruction::tpl(Register::b)
+            return false
         }
-    } else if line[0]=="inc" {
-        if line[1] == "a" {
-            return Instruction::inc(Register::a)
-        } else {
-            return Instruction::inc(Register::b)
+    }
+}
+
+trait BestConfig {
+    fn best_config(&self) -> i32;
+}
+
+impl BestConfig for Vec<Arrangement> {
+    fn best_config(&self) -> i32 {
+        let mut configs : Vec<(usize,i32)> = Vec::new();
+        for arrangement in self {
+            configs.push((arrangement.main.len(),arrangement.compute_qe()))
         }
-    } else if line[0]=="jmp" {
-        return Instruction::jmp(line[1].parse().unwrap())
-    } else if line[0]=="jio" {
-        if line[1] == "a" {
-            return Instruction::jio(Register::a,line[2].parse().unwrap())
-        } else {
-            return Instruction::jio(Register::b,line[2].parse().unwrap())
-        }
-    } else if line[0]=="jie" {
-        if line[1] == "a" {
-            return Instruction::jie(Register::a,line[2].parse().unwrap())
-        } else {
-            return Instruction::jie(Register::b,line[2].parse().unwrap())
-        }
-    } else {
-        panic!("parse error")
+        configs.sort_by_key(|x| x.0);
+        let minimum = configs[0].0;
+        let mut configs : Vec<&(usize,i32)> = configs.iter().filter(|x| x.0==minimum).collect();
+        configs.sort_by_key(|x| x.1);
+        return configs[0].1
     }
 }
