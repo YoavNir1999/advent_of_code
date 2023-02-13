@@ -15,73 +15,36 @@ fn main() {
             Err(err) => panic!("{}",err)
         };
 
-        score += determine_score(parse_line(line))
+        score += let_to_num(&parse_line(line));
     };
 
     println!("{}",score);
 
 }
 
-fn parse_line(line:String) -> Turn {
-    let line : Vec<&str> = line.split(" ").collect();
-
-    let res = Turn {
-        them : infer(line[0]),
-        you : infer(line[1])
-    };
-
-    //println!("{:?}",res);
-
-    res
-}
-
-#[derive(Debug)]
-struct Turn {
-    them : Choice,
-    you : Choice
-}
-
-#[derive(Debug)]
-enum Choice {
-    Rock,
-    Paper,
-    Scissors
-}
-
-fn infer(letter : &str) -> Choice {
-    if letter == "A" || letter == "X"{
-        return Choice::Rock;
-    } else if letter == "B" || letter == "Y" {
-        return Choice::Paper
+fn let_to_num(letter : &str) -> u32 {
+    if letter.chars().next().unwrap().is_uppercase() {
+        return (letter.as_bytes()[0]-38) as u32
     } else {
-        return  Choice::Scissors;
+        return (letter.as_bytes()[0]-96) as u32
     }
 }
 
-fn determine_score(turn : Turn) -> u32 {
-    let mut sum : u32 = 0;
+fn parse_line(line:String) -> String {
+    let mut line : Vec<&str> = line.split("").collect();
+    line.pop();
+    line.remove(0);
 
-    // base score
-    match turn.you {
-        Choice::Rock => { // lose
-                        match turn.them {
-                            Choice::Rock => sum += 3,
-                            Choice::Scissors => sum += 2,
-                            _ => sum += 1
-                        }},
-        Choice::Paper => { // draw
-                        match turn.them {
-                            Choice::Rock => sum += 4,
-                            Choice::Scissors => sum += 6,
-                            _ => sum += 5
-                        }},
-        Choice::Scissors => { // win
-                        match turn.them {
-                            Choice::Rock => sum += 8,
-                            Choice::Scissors => sum += 7,
-                            _ => sum += 9
-                        }}
+    let len = line.len();
+
+    for i in 0..len/2 {
+        for j in len/2..len {
+            if line[i]==line[j] {
+                return line[i].to_owned()
+            }
+        }
     }
 
-    sum
+    //println!("{:?}",line);
+    "".to_owned()
 }
