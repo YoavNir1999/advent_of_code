@@ -7,8 +7,7 @@ fn main() {
     let file = open("/Users/yoavnir/Documents/vs code/rust/old/solving_challenges/advent_of_code/text.txt");
     let lines = file_to_iter(file);
 
-    let mut highest = [0,0,0];
-    let mut current : i32 = 0;
+    let mut score : u32 = 0;
 
     for line in lines.lines() {
         let line = match line {
@@ -16,28 +15,73 @@ fn main() {
             Err(err) => panic!("{}",err)
         };
 
-        if line.is_empty() {
-            if current > highest[0] {
-                highest[2] = highest[1];
-                highest[1] = highest[0];
-                highest[0] = current;
-            } else if current > highest[1] {
-                highest[2] = highest[1];
-                highest[1] = current
-            } else if current > highest[2] {
-                highest[2] = current;
-            }
-            current = 0;
-        } else {
-            current += line.parse::<i32>().unwrap()
-        }
-        
-    }
+        score += determine_score(parse_line(line))
+    };
 
-    println!("{}",highest[0]+highest[1]+highest[2]);
+    println!("{}",score);
 
 }
 
-fn parse_line(line:String) -> u64 {
-    return line.parse().unwrap()
+fn parse_line(line:String) -> Turn {
+    let line : Vec<&str> = line.split(" ").collect();
+
+    let res = Turn {
+        them : infer(line[0]),
+        you : infer(line[1])
+    };
+
+    //println!("{:?}",res);
+
+    res
+}
+
+#[derive(Debug)]
+struct Turn {
+    them : Choice,
+    you : Choice
+}
+
+#[derive(Debug)]
+enum Choice {
+    Rock,
+    Paper,
+    Scissors
+}
+
+fn infer(letter : &str) -> Choice {
+    if letter == "A" || letter == "X"{
+        return Choice::Rock;
+    } else if letter == "B" || letter == "Y" {
+        return Choice::Paper
+    } else {
+        return  Choice::Scissors;
+    }
+}
+
+fn determine_score(turn : Turn) -> u32 {
+    let mut sum : u32 = 0;
+
+    // base score
+    match turn.you {
+        Choice::Rock => {
+                        match turn.them {
+                            Choice::Rock => sum += 4,
+                            Choice::Scissors => sum += 7,
+                            _ => sum += 1
+                        }},
+        Choice::Paper => {
+                        match turn.them {
+                            Choice::Rock => sum += 8,
+                            Choice::Scissors => sum += 2,
+                            _ => sum += 5
+                        }},
+        Choice::Scissors => {
+                        match turn.them {
+                            Choice::Rock => sum += 3,
+                            Choice::Scissors => sum += 6,
+                            _ => sum += 9
+                        }}
+    }
+
+    sum
 }
