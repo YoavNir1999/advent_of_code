@@ -63,22 +63,22 @@ fn determine_score(turn : Turn) -> u32 {
 
     // base score
     match turn.you {
-        Choice::Rock => {
-                        match turn.them {
-                            Choice::Rock => sum += 4,
-                            Choice::Scissors => sum += 7,
-                            _ => sum += 1
-                        }},
-        Choice::Paper => {
-                        match turn.them {
-                            Choice::Rock => sum += 8,
-                            Choice::Scissors => sum += 2,
-                            _ => sum += 5
-                        }},
-        Choice::Scissors => {
+        Choice::Rock => { // lose
                         match turn.them {
                             Choice::Rock => sum += 3,
+                            Choice::Scissors => sum += 2,
+                            _ => sum += 1
+                        }},
+        Choice::Paper => { // draw
+                        match turn.them {
+                            Choice::Rock => sum += 4,
                             Choice::Scissors => sum += 6,
+                            _ => sum += 5
+                        }},
+        Choice::Scissors => { // win
+                        match turn.them {
+                            Choice::Rock => sum += 8,
+                            Choice::Scissors => sum += 7,
                             _ => sum += 9
                         }}
     }
