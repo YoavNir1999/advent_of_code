@@ -8,6 +8,7 @@ fn main() {
     let lines = file_to_iter(file);
 
     let mut score : u32 = 0;
+    let mut holder : Vec<String> = Vec::new();
 
     for line in lines.lines() {
         let line = match line {
@@ -15,11 +16,35 @@ fn main() {
             Err(err) => panic!("{}",err)
         };
 
-        score += let_to_num(&parse_line(line));
+        holder.push(line);
+
+        if holder.len() == 3 {
+            score += common_char(&holder);
+            holder.clear();
+        }
+
+        //score += let_to_num(&parse_line(line));
     };
 
     println!("{}",score);
 
+}
+
+fn common_char(holder : &Vec<String>) -> u32 {
+    for char1 in holder[0].chars().into_iter() {
+        for char2 in holder[1].chars().into_iter() {
+            if char1 == char2 {
+                for char3 in holder[2].chars().into_iter() {
+                    if char1 == char3 {
+                        return let_to_num(&char1.to_string());
+                    }
+                }
+            }
+        }
+    }
+
+
+    1
 }
 
 fn let_to_num(letter : &str) -> u32 {
