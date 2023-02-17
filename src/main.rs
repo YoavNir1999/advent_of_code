@@ -28,10 +28,10 @@ fn main() {
 fn parse_line(line:String) -> bool {
     let line : Vec<Vec<u8>> = line.split(",").map(|x| x.split("-").map(|x| x.parse().unwrap()).collect()).collect();
     //println!("{:?}",line);
-    if line[0][0] <= line[1][0] && line[0][1] >= line[1][1] || line[1][0] <= line[0][0] && line[1][1] >= line[0][1] {
+    
+    if line[0][0]<=line[1][0] && line[0][1]>=line[1][0] || line[0][0]>=line[1][0] && line[0][0]<=line[1][1] {
         return true
     }
-
 
     false
 }
