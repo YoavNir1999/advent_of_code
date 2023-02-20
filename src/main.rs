@@ -51,7 +51,8 @@ fn perform_order(stack : &mut Vec<Vec<&str>>,order : Order) {
     println!("{:?}",stack[order.from]);
     println!("{:?}",stack[order.to]);
     for i in 0..order.amount {
-        let element = stack[order.from].remove(0);
+        let ind = order.amount-i-1;
+        let element = stack[order.from].remove(ind);
         stack[order.to].insert(0, element);
     }
     println!("{:?}",stack[order.from]);
