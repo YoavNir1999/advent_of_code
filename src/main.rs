@@ -7,29 +7,7 @@ fn main() {
     let file = open("/Users/yoavnir/Documents/vs code/rust/old/solving_challenges/advent_of_code/text.txt");
     let lines = file_to_iter(file);
 
-    /*
-    [V]     [B]                     [F]
-    [N] [Q] [W]                 [R] [B]
-    [F] [D] [S]     [B]         [L] [P]
-    [S] [J] [C]     [F] [C]     [D] [G]
-    [M] [M] [H] [L] [P] [N]     [P] [V]
-    [P] [L] [D] [C] [T] [Q] [R] [S] [J]
-    [H] [R] [Q] [S] [V] [R] [V] [Z] [S]
-    [J] [S] [N] [R] [M] [T] [G] [C] [D]
-    1   2   3   4   5   6   7   8   9 
-     */
-
-    let mut stack : Vec<Vec<&str>> = vec!(
-        vec!("V","N","F","S","M","P","H","J"),
-        vec!("Q","D","J","M","L","R","S"),
-        vec!("B","W","S","C","H","D","Q","N"),
-        vec!("L","C","S","R"),
-        vec!("B","F","P","T","V","M"),
-        vec!("C","N","Q","R","T"),
-        vec!("R","V","G"),
-        vec!("R","L","D","P","S","Z","C"),
-        vec!("F","B","P","G","V","J","S","D")
-    );
+    let mut quartets : Vec<Vec<String>> = Vec::new();
 
     for line in lines.lines() {
         let line = match line {
@@ -37,44 +15,40 @@ fn main() {
             Err(err) => panic!("{}",err)
         };
 
-        parse_line(line, &mut stack);
+        parse_line(line, &mut quartets);
+
     };
-    
-    for st in stack {
-        print!("{}", st[0]);
+
+    for i in 0..quartets.len() {
+        if check_quart(&quartets[i]) {
+            println!("{}",i+4);
+            break;
+        }
     }
 
 }
 
-fn perform_order(stack : &mut Vec<Vec<&str>>,order : Order) {
-    println!("{:?}",order);
-    println!("{:?}",stack[order.from]);
-    println!("{:?}",stack[order.to]);
-    for i in 0..order.amount {
-        let ind = order.amount-i-1;
-        let element = stack[order.from].remove(ind);
-        stack[order.to].insert(0, element);
+fn check_quart(quart : &Vec<String>) -> bool {
+    let mut quart = quart.clone();
+    quart.sort();
+    println!("b:{:?}",quart);
+    quart.dedup();
+    println!("a:{:?}",quart);
+    if quart.len() == 4 {
+        return true
     }
-    println!("{:?}",stack[order.from]);
-    println!("{:?}",stack[order.to]);
+
+    false
 }
 
-
-fn parse_line(line:String, stack : &mut Vec<Vec<&str>>) {
-    let line : Vec<&str> = line.split(" ").collect();
-    let order = Order {
-        amount : line[1].parse::<usize>().unwrap(),
-        from : line[3].parse::<usize>().unwrap()-1,
-        to : line[5].parse::<usize>().unwrap()-1,
-    };
+fn parse_line(line:String, quartets :&mut Vec<Vec<String>>) {
+    let mut line : Vec<String> = line.split("").map(|x| x.to_owned()).collect();
+    line.remove(0);
+    line.pop();
     
-    perform_order(stack, order);
+    for i in 0..line.len()-3 {
+        quartets.push(vec!(line[i].clone(),line[i+1].clone(),line[i+2].clone(),line[i+3].clone()))
+    }
 
-}
-
-#[derive(Debug)]
-struct Order {
-    amount : usize,
-    from : usize,
-    to : usize
+    //println!("{:?}",quartets);
 }
