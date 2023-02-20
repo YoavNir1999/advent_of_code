@@ -21,7 +21,7 @@ fn main() {
 
     for i in 0..quartets.len() {
         if check_quart(&quartets[i]) {
-            println!("{}",i+4);
+            println!("{}",i+14);
             break;
         }
     }
@@ -31,10 +31,8 @@ fn main() {
 fn check_quart(quart : &Vec<String>) -> bool {
     let mut quart = quart.clone();
     quart.sort();
-    println!("b:{:?}",quart);
     quart.dedup();
-    println!("a:{:?}",quart);
-    if quart.len() == 4 {
+    if quart.len() == 14 {
         return true
     }
 
@@ -46,8 +44,12 @@ fn parse_line(line:String, quartets :&mut Vec<Vec<String>>) {
     line.remove(0);
     line.pop();
     
-    for i in 0..line.len()-3 {
-        quartets.push(vec!(line[i].clone(),line[i+1].clone(),line[i+2].clone(),line[i+3].clone()))
+    for i in 0..line.len()-13 {
+        let mut temp = Vec::new();
+        for j in 0..14 {
+            temp.push(line[i+j].clone())
+        }
+        quartets.push(temp)
     }
 
     //println!("{:?}",quartets);
