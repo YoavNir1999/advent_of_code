@@ -9,8 +9,6 @@ fn main() {
 
     let mut grid : Vec<Vec<u8>> = Vec::new();
 
-    let mut sum : u32 = 99*2+97*2;
-
     for line in lines.lines() {
         let line = match line {
             Ok(line) => line,
@@ -20,56 +18,67 @@ fn main() {
         parse_line(line, &mut grid);
     };
 
+    let mut biggest = 0;
+
     for i in 1..98 {
         for j in 1..98 {
-            if check_vis(&grid,i,j) {
-                sum += 1
+            let temp = check_vis(&grid,i,j);
+            if temp > biggest {
+                biggest = temp
             }
         }
     }
 
-    println!("{}",sum);
+    println!("{}",biggest);
 }
 
-fn check_vis(grid : &Vec<Vec<u8>>, i : usize, j : usize) -> bool {
+fn check_vis(grid : &Vec<Vec<u8>>, i : usize, j : usize) -> u32 {
     let val = grid[i][j];
 
-    let mut bools = [true,true,true,true];
+    let mut vals = [0,0,0,0];
 
-    for s in 0..i {
-        if grid[s][j] >= val {
-            bools[0] = false;
+    for s in 1..i+1 {
+        if grid[i-s][j] >= val {
+            vals[0] += 1;
             break
+        } else {
+            vals[0] += 1
         }
     }
 
-    for s in i+1..99 {
-        if grid[s][j] >= val {
-            bools[1] = false;
+    for s in 1..99-i {
+        if grid[i+s][j] >= val {
+            vals[1] += 1;
             break
+        } else {
+            vals[1] += 1
         }
     }
 
-    for s in j+1..99 {
-        if grid[i][s] >= val {
-            bools[2] = false;
+    for s in 1..99-j {
+        if grid[i][s+j] >= val {
+            vals[2] += 1;
             break
+        } else {
+            vals[2] += 1
         }
     }
 
-    for s in 0..j {
-        if grid[i][s] >= val {
-            bools[3] = false;
+    for s in 1..j+1 {
+        if grid[i][j-s] >= val {
+            vals[3] += 1;
             break
+        } else {
+            vals[3] += 1
         }
     }
 
-    for v in bools {
-        if v == true {
-            return true
-        }
+    let mut res = 1;
+
+    for v in vals {
+        res *= v
     }
-    false
+    res
 }
 
 fn parse_line(line:String, grid : &mut Vec<Vec<u8>>) {
